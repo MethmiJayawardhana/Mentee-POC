@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Journal History - Mentee POC</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+      color: #111827;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+    }
+
+    .logo-box {
+      width: 36px;
+      height: 36px;
+      background: #e2e8f0;
+      border-radius: 10px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: #374151;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+
+    .nav-links a.active,
+    .nav-links a:hover {
+      color: #2563eb;
+    }
+
+    .page-body {
+      display: grid;
+      grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+      gap: 32px;
+      padding: 32px 40px 40px;
+    }
+
+    .calendar-card,
+    .content-card,
+    .history-card {
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 16px 48px rgba(15, 23, 42, 0.08);
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .calendar-header button {
+      border: none;
+      background: #e5e7eb;
+      color: #374151;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 10px;
+      text-align: center;
+    }
+
+    .calendar-grid span {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .day-cell {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      cursor: pointer;
+      color: #374151;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .day-cell:hover {
+      background: #e5e7eb;
+    }
+
+    .day-cell.past {
+      color: #111827;
+    }
+
+    .day-cell.future {
+      color: #9ca3af;
+    }
+
+    .day-cell.today {
+      color: #111827;
+      border: 1px solid #2563eb;
+    }
+
+    .day-cell.active {
+      background: #2563eb;
+      color: white;
+    }
+
+    .content-card {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .content-top {
+      background: #f3f4f6;
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .content-top h2 {
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+
+    .content-top p {
+      color: #4b5563;
+      line-height: 1.7;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-secondary,
+    .btn-primary {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-secondary {
+      background: #374151;
+      color: white;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .history-card {
+      margin-top: 16px;
+      padding: 24px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .history-item {
+      padding: 18px;
+      border-radius: 16px;
+      background: #f3f4f6;
+    }
+
+    .history-item h3 {
+      font-size: 14px;
+      margin-bottom: 10px;
+      color: #111827;
+    }
+
+    .history-item p {
+      font-size: 13px;
+      color: #475569;
+      line-height: 1.7;
+    }
+
+    #journalEdit {
+      width: 100%;
+      min-height: 180px;
+      border-radius: 16px;
+      border: 1px solid #d1d5db;
+      background: #ffffff;
+      padding: 16px;
+      font-family: inherit;
+      font-size: 14px;
+      color: #111827;
+      resize: vertical;
+      display: none;
+      margin-top: 14px;
+    }
+
+    .save-status {
+      color: #4b5563;
+      font-size: 13px;
+      margin-top: 12px;
+      min-height: 18px;
+    }
+
+    .history-item strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: #111827;
+    }
+
+    @media (max-width: 980px) {
+      .page-body {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .navbar,
+      .page-body {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-left">
+      <div class="logo-box"></div>
+    </div>
+    <div class="nav-right">
+      <ul class="nav-links">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#calendar" class="active">Calendar</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#profile">Profile</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="page-body">
+    <div class="calendar-card">
+      <div class="calendar-header">
+        <div id="calendarMonthLabel"></div>
+        <div>
+          <button type="button" id="prevMonth">‹</button>
+          <button type="button" id="nextMonth">›</button>
+        </div>
+      </div>
+      <div class="calendar-grid">
+        <span>Mo</span>
+        <span>Tu</span>
+        <span>We</span>
+        <span>Th</span>
+        <span>Fr</span>
+        <span>Sa</span>
+        <span>Su</span>
+      </div>
+      <div class="calendar-grid" id="calendarDays"></div>
+    </div>
+
+    <div>
+      <div class="content-card">
+        <div class="content-top">
+          <div>
+            <h2 id="journalDate"></h2>
+            <div id="journalDisplay">
+              <p id="journalText">Write your journal entry here...</p>
+              <textarea id="journalEdit" placeholder="Write your journal entry here..."></textarea>
+            </div>
+          </div>
+          <div class="action-row">
+            <button type="button" class="btn-secondary" id="editBtn">Edit</button>
+            <button type="button" class="btn-primary" id="saveBtn" disabled>Save</button>
+          </div>
+          <p id="saveStatus" class="save-status"></p>
+        </div>
+
+        <div class="history-card"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const daysContainer = document.getElementById('calendarDays');
+    const calendarMonthLabel = document.getElementById('calendarMonthLabel');
+    const journalDate = document.getElementById('journalDate');
+    const journalText = document.getElementById('journalText');
+    const journalEdit = document.getElementById('journalEdit');
+    const editBtn = document.getElementById('editBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const saveStatus = document.getElementById('saveStatus');
+    const prevMonthBtn = document.getElementById('prevMonth');
+    const nextMonthBtn = document.getElementById('nextMonth');
+    const historyCard = document.querySelector('.history-card');
+
+    const journalEntries = {
+    };
+
+    const journalHistory = {
+    };
+
+    const journalSavedAt = {};
+
+    const today = new Date();
+    let currentYear = today.getFullYear();
+    let currentMonth = today.getMonth();
+    let selectedDate = formatDateKey(today);
+    let editMode = false;
+
+    function formatDateKey(date) {
+      return date.toISOString().split('T')[0];
+    }
+
+    function formatDisplay(dateKey) {
+      return new Date(dateKey).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      }).toUpperCase();
+    }
+
+    function getMonthName(year, month) {
+      return new Date(year, month, 1).toLocaleDateString('en-US', {
+        month: 'long',
+        year: 'numeric',
+      }).toUpperCase();
+    }
+
+    function truncateWords(text, maxWords = 150) {
+      const words = text.trim().split(/\s+/);
+      if (words.length <= maxWords) {
+        return text;
+      }
+      return `${words.slice(0, maxWords).join(' ')} ...`;
+    }
+
+    function renderHistory(dateKey) {
+      const entries = journalHistory[dateKey] || [];
+      historyCard.innerHTML = '';
+
+      if (entries.length === 0) {
+        const noUpdates = document.createElement('div');
+        noUpdates.className = 'history-item';
+        noUpdates.innerHTML = '<strong>No updates</strong>';
+        historyCard.appendChild(noUpdates);
+        return;
+      }
+
+      entries.forEach((entry) => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+
+        const entryTime = document.createElement('strong');
+        entryTime.textContent = entry.timestamp;
+
+        const entryText = document.createElement('p');
+        entryText.textContent = truncateWords(entry.text, 150);
+
+        item.appendChild(entryTime);
+        item.appendChild(entryText);
+        historyCard.appendChild(item);
+      });
+    }
+
+    function updateSaveStatus(dateKey) {
+      if (journalSavedAt[dateKey]) {
+        saveStatus.textContent = `Last saved: ${journalSavedAt[dateKey]}`;
+      } else {
+        saveStatus.textContent = '';
+      }
+    }
+
+    function setJournal(dateKey) {
+      journalDate.textContent = formatDisplay(dateKey);
+      journalText.textContent = journalEntries[dateKey] || 'No journal entry for this date yet.';
+      journalEdit.value = journalEntries[dateKey] || '';
+      if (editMode) {
+        exitEditMode();
+      }
+      renderHistory(dateKey);
+      updateSaveStatus(dateKey);
+    }
+
+    function enterEditMode() {
+      editMode = true;
+      journalText.style.display = 'none';
+      journalEdit.style.display = 'block';
+      journalEdit.value = journalEntries[selectedDate] || '';
+      journalEdit.focus();
+      editBtn.textContent = 'Cancel';
+      saveBtn.disabled = false;
+    }
+
+    function exitEditMode() {
+      editMode = false;
+      journalText.style.display = 'block';
+      journalEdit.style.display = 'none';
+      editBtn.textContent = 'Edit';
+      saveBtn.disabled = true;
+    }
+
+    editBtn.addEventListener('click', () => {
+      if (editMode) {
+        exitEditMode();
+      } else {
+        enterEditMode();
+      }
+    });
+
+    saveBtn.addEventListener('click', () => {
+      if (!editMode) {
+        return;
+      }
+
+      const newText = journalEdit.value.trim();
+      const previousText = journalEntries[selectedDate] || '';
+      const updatedText = newText || 'No journal entry for this date yet.';
+
+      journalEntries[selectedDate] = newText;
+      journalText.textContent = updatedText;
+
+      const timestamp = new Date().toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      }).replace(',', '').toUpperCase();
+
+      journalSavedAt[selectedDate] = timestamp;
+      saveStatus.textContent = `Saved: ${timestamp}`;
+
+      if (previousText && previousText !== newText) {
+        journalHistory[selectedDate] = journalHistory[selectedDate] || [];
+        journalHistory[selectedDate].unshift({ timestamp, text: previousText });
+      }
+
+      setJournal(selectedDate);
+    });
+
+    prevMonthBtn.addEventListener('click', () => {
+      currentMonth -= 1;
+      if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear -= 1;
+      }
+      renderCalendar(currentYear, currentMonth);
+    });
+
+    nextMonthBtn.addEventListener('click', () => {
+      currentMonth += 1;
+      if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear += 1;
+      }
+      renderCalendar(currentYear, currentMonth);
+    });
+
+    renderCalendar(currentYear, currentMonth);
+    setJournal(selectedDate);
+
+    function renderCalendar(year, month) {
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      calendarMonthLabel.textContent = getMonthName(year, month);
+      daysContainer.innerHTML = '';
+
+      const blanks = (firstDay + 6) % 7;
+      for (let i = 0; i < blanks; i += 1) {
+        const blank = document.createElement('div');
+        blank.className = 'day-cell';
+        blank.style.visibility = 'hidden';
+        daysContainer.appendChild(blank);
+      }
+
+      for (let day = 1; day <= daysInMonth; day += 1) {
+        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dayEl = document.createElement('div');
+        dayEl.className = 'day-cell';
+        dayEl.textContent = day;
+
+        const cellDate = new Date(year, month, day);
+        if (cellDate.toDateString() === today.toDateString()) {
+          dayEl.classList.add('today');
+        } else if (cellDate > today) {
+          dayEl.classList.add('future');
+        } else {
+          dayEl.classList.add('past');
+        }
+
+        if (dateKey === selectedDate) {
+          dayEl.classList.add('active');
+        }
+
+        dayEl.addEventListener('click', () => {
+          selectedDate = dateKey;
+          document.querySelectorAll('.day-cell').forEach((el) => el.classList.remove('active'));
+          dayEl.classList.add('active');
+          setJournal(dateKey);
+        });
+
+        daysContainer.appendChild(dayEl);
+      }
+    }
+  </script>
+</body>
+</html>

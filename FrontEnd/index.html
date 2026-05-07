@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentee POC</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #fdfdfd;
+      background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    body, #app {
+      min-height: 100vh;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .page-root {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      gap: 20px;
+    }
+
+    .left-panel {
+      position: relative;
+      flex: 0 0 650px;
+      max-width: 60vw;
+      min-height: 570px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border-radius: 32px;
+    }
+
+    .animated-shape {
+      position: relative;
+      width: 520px;
+      height: 520px;
+      background: #2d5bf2;
+      border-radius: 48% 52% 50% 50% / 45% 49% 51% 55%;
+      box-shadow: 0 28px 80px rgba(45, 91, 242, 0.25);
+      animation: morph-shape 8s infinite ease-in-out;
+    }
+
+    @keyframes morph-shape {
+      0%,
+      100% {
+        border-radius: 48% 52% 50% 50% / 45% 49% 51% 55%;
+        transform: translate(0, 0) scale(1);
+      }
+      33% {
+        border-radius: 55% 45% 40% 60% / 50% 40% 60% 50%;
+        transform: translate(-18px, 12px) scale(0.96);
+      }
+      66% {
+        border-radius: 42% 58% 55% 45% / 55% 50% 40% 50%;
+        transform: translate(14px, -18px) scale(1.02);
+      }
+    }
+
+    .form-panel {
+      flex: 0 0 420px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .form-card {
+      width: 100%;
+      padding: 42px 38px;
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 24px;
+      border: 1px solid rgba(196, 200, 208, 0.35);
+      box-shadow: 0 24px 80px rgba(15, 23, 42, 0.08);
+      backdrop-filter: blur(12px);
+    }
+
+    .page-title {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #121827;
+    }
+
+    .page-subtitle {
+      font-size: 14px;
+      color: #64748b;
+      margin-bottom: 28px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .input-with-icon {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+
+    .input-icon {
+      font-size: 16px;
+    }
+
+    .form-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 14px;
+      color: #0f172a;
+      min-width: 0;
+    }
+
+    .form-input::placeholder {
+      color: #94a3b8;
+    }
+
+    .btn-continue {
+      width: 100%;
+      padding: 14px 16px;
+      background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      margin-bottom: 30px;
+    }
+
+    .btn-continue:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(59, 130, 246, 0.18);
+    }
+
+    .social-section {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .social-title {
+      font-size: 11px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .social-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .social-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+      cursor: pointer;
+    }
+
+    .social-btn img {
+      width: 20px;
+      height: 20px;
+    }
+
+    .social-btn.facebook {
+      background: #eff4ff;
+    }
+
+    .social-btn.google {
+      background: #fff7ed;
+    }
+
+    .social-btn.apple {
+      background: #f8fafc;
+    }
+
+    .social-btn:hover {
+      background: #f3f4f6;
+    }
+
+    .form-checkbox {
+      display: flex;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: #475569;
+      cursor: pointer;
+    }
+
+    .checkbox-label input {
+      width: 16px;
+      height: 16px;
+      accent-color: #2563eb;
+    }
+
+    .page-footer {
+      text-align: center;
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    .route-link {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .route-link:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 1100px) {
+      .left-panel {
+        flex: 0 0 520px;
+      }
+      .form-panel {
+        flex: 0 0 380px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .page-root {
+        flex-direction: column;
+        padding: 30px 20px 0;
+      }
+      .left-panel {
+        width: 100%;
+        max-width: 700px;
+        min-height: 520px;
+        margin-bottom: -220px;
+        z-index: 1;
+      }
+      .animated-shape {
+        width: 520px;
+        height: 520px;
+      }
+      .form-panel {
+        width: 100%;
+        max-width: 700px;
+        z-index: 2;
+        padding-bottom: 40px;
+      }
+      .form-card {
+        position: relative;
+        z-index: 3;
+        margin-top: 220px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .left-panel {
+        min-height: 420px;
+        margin-bottom: -170px;
+      }
+      .animated-shape {
+        width: 420px;
+        height: 420px;
+      }
+      .form-card {
+        padding: 32px 24px;
+        margin-top: 170px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <section id="loginPage" class="page active">
+      <div class="page-root">
+        <div class="left-panel">
+          <div class="animated-shape"></div>
+        </div>
+        <div class="form-panel">
+          <div class="form-card">
+            <h1 class="page-title">Login your account!</h1>
+            <form class="login-form" id="loginForm">
+              <div class="form-group">
+                <label for="email">Email</label>
+                <div class="input-with-icon">
+                  <span class="input-icon"></span>
+                  <input type="email" id="email" class="form-input" placeholder="Enter your email" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-with-icon">
+                  <span class="input-icon"></span>
+                  <input type="password" id="password" class="form-input" placeholder="Enter your password" required />
+                </div>
+              </div>
+              <button type="submit" class="btn-continue">Continue</button>
+            </form>
+            <div class="social-section">
+              <p class="social-title">Sign in With</p>
+              <div class="social-buttons">
+                <button type="button" class="social-btn facebook" title="Facebook">
+                  <img src="assests/facebook.png" alt="Facebook" />
+                </button>
+                <button type="button" class="social-btn google" title="Google">
+                  <img src="assests/google.png" alt="Google" />
+                </button>
+                <button type="button" class="social-btn apple" title="Apple">
+                  <img src="assests/apple.png" alt="Apple" />
+                </button>
+              </div>
+            </div>
+            <div class="page-footer">
+              Don't have an account? <a href="#signup" class="route-link">Sign up</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="signupPage" class="page">
+      <div class="page-root">
+        <div class="left-panel">
+          <div class="animated-shape"></div>
+        </div>
+        <div class="form-panel">
+          <div class="form-card">
+            <h1 class="page-title">Create your account!</h1>
+            <p class="page-subtitle">Enter your full details</p>
+            <form class="signup-form" id="signupForm">
+              <div class="form-group">
+                <label for="username">Username</label>
+                <div class="input-with-icon">
+                  <span class="input-icon"></span>
+                  <input type="text" id="username" class="form-input" placeholder="Username" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="emailSign">Email</label>
+                <div class="input-with-icon">
+                  <span class="input-icon"></span>
+                  <input type="email" id="emailSign" class="form-input" placeholder="Email" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="phone">Phone</label>
+                <div class="input-with-icon">
+                  <span class="input-icon"></span>
+                  <input type="tel" id="phone" class="form-input" placeholder="Phone" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="passwordSign">Password</label>
+                <div class="input-with-icon">
+                  <span class="input-icon"></span>
+                  <input type="password" id="passwordSign" class="form-input" placeholder="Password" required />
+                </div>
+              </div>
+              <div class="form-checkbox">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="remember" />
+                  <span>Remember me</span>
+                </label>
+              </div>
+              <button type="submit" class="btn-continue">Continue</button>
+            </form>
+            <div class="social-section">
+              <p class="social-title">Sign in With</p>
+              <div class="social-buttons">
+                <button type="button" class="social-btn facebook" title="Facebook">
+                  <img src="assests/facebook.png" alt="Facebook" />
+                </button>
+                <button type="button" class="social-btn google" title="Google">
+                  <img src="assests/google.png" alt="Google" />
+                </button>
+                <button type="button" class="social-btn apple" title="Apple">
+                  <img src="assests/apple.png" alt="Apple" />
+                </button>
+              </div>
+            </div>
+            <div class="page-footer">
+              Already have an account? <a href="#login" class="route-link">Log in</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="router.js"></script>
+</body>
+</html>
