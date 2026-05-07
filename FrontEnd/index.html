@@ -258,6 +258,46 @@
       text-decoration: underline;
     }
 
+    .form-error {
+      display: none;
+      color: #dc2626;
+      font-size: 12px;
+      margin-top: 6px;
+      margin-left: 12px;
+    }
+
+    .form-error.show {
+      display: block;
+    }
+
+    .input-with-icon.error {
+      border-color: #dc2626;
+      background: #fef2f2;
+    }
+
+    .form-message {
+      display: none;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .form-message.error {
+      display: block;
+      background: #fee2e2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+
+    .form-message.success {
+      display: block;
+      background: #dcfce7;
+      color: #16a34a;
+      border: 1px solid #bbf7d0;
+    }
+
     @media (max-width: 1100px) {
       .left-panel {
         flex: 0 0 520px;
@@ -322,20 +362,23 @@
         <div class="form-panel">
           <div class="form-card">
             <h1 class="page-title">Login your account!</h1>
+            <div class="form-message" id="loginMessage"></div>
             <form class="login-form" id="loginForm">
               <div class="form-group">
                 <label for="email">Email</label>
                 <div class="input-with-icon">
-                  <span class="input-icon"></span>
+                  <span class="input-icon">✉</span>
                   <input type="email" id="email" class="form-input" placeholder="Enter your email" required />
                 </div>
+                <div class="form-error" id="emailError"></div>
               </div>
               <div class="form-group">
                 <label for="password">Password</label>
                 <div class="input-with-icon">
-                  <span class="input-icon"></span>
+                  <span class="input-icon">🔒</span>
                   <input type="password" id="password" class="form-input" placeholder="Enter your password" required />
                 </div>
+                <div class="form-error" id="passwordError"></div>
               </div>
               <button type="submit" class="btn-continue">Continue</button>
             </form>
@@ -370,34 +413,39 @@
           <div class="form-card">
             <h1 class="page-title">Create your account!</h1>
             <p class="page-subtitle">Enter your full details</p>
+            <div class="form-message" id="signupMessage"></div>
             <form class="signup-form" id="signupForm">
               <div class="form-group">
                 <label for="username">Username</label>
                 <div class="input-with-icon">
-                  <span class="input-icon"></span>
+                  <span class="input-icon">👤</span>
                   <input type="text" id="username" class="form-input" placeholder="Username" required />
                 </div>
+                <div class="form-error" id="usernameError"></div>
               </div>
               <div class="form-group">
                 <label for="emailSign">Email</label>
                 <div class="input-with-icon">
-                  <span class="input-icon"></span>
+                  <span class="input-icon">✉</span>
                   <input type="email" id="emailSign" class="form-input" placeholder="Email" required />
                 </div>
+                <div class="form-error" id="emailSignError"></div>
               </div>
               <div class="form-group">
                 <label for="phone">Phone</label>
                 <div class="input-with-icon">
-                  <span class="input-icon"></span>
+                  <span class="input-icon">📱</span>
                   <input type="tel" id="phone" class="form-input" placeholder="Phone" required />
                 </div>
+                <div class="form-error" id="phoneError"></div>
               </div>
               <div class="form-group">
                 <label for="passwordSign">Password</label>
                 <div class="input-with-icon">
-                  <span class="input-icon"></span>
+                  <span class="input-icon">🔒</span>
                   <input type="password" id="passwordSign" class="form-input" placeholder="Password" required />
                 </div>
+                <div class="form-error" id="passwordSignError"></div>
               </div>
               <div class="form-checkbox">
                 <label class="checkbox-label">
@@ -430,6 +478,132 @@
     </section>
   </div>
 
+  <script src="errorHandler.js"></script>
   <script src="router.js"></script>
+  <script>
+    const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const validatePassword = (password) => password.length >= 6;
+    const validatePhone = (phone) => /^[\d\s+()-]{10,}$/.test(phone.replace(/\s/g, ''));
+    const validateUsername = (username) => username.trim().length >= 3;
+
+    const setFieldError = (fieldId, errorId, message) => {
+      const field = document.getElementById(fieldId);
+      const error = document.getElementById(errorId);
+      const inputContainer = field.parentElement;
+      if (message) {
+        inputContainer.classList.add('error');
+        error.textContent = message;
+        error.classList.add('show');
+      } else {
+        inputContainer.classList.remove('error');
+        error.classList.remove('show');
+      }
+    };
+
+    const showFormMessage = (formId, type, message) => {
+      const messageEl = document.getElementById(formId);
+      messageEl.textContent = message;
+      messageEl.className = `form-message ${type}`;
+    };
+
+    const clearFormErrors = (errorElements) => {
+      errorElements.forEach((el) => {
+        const input = el.previousElementSibling.querySelector('.form-input');
+        if (input) input.parentElement.classList.remove('error');
+        el.textContent = '';
+        el.classList.remove('show');
+      });
+    };
+
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const errorElements = [
+        document.getElementById('emailError'),
+        document.getElementById('passwordError'),
+      ];
+      clearFormErrors(errorElements);
+      let hasError = false;
+
+      if (!email) {
+        setFieldError('email', 'emailError', 'Email is required');
+        hasError = true;
+      } else if (!validateEmail(email)) {
+        setFieldError('email', 'emailError', 'Please enter a valid email address');
+        hasError = true;
+      }
+
+      if (!password) {
+        setFieldError('password', 'passwordError', 'Password is required');
+        hasError = true;
+      } else if (!validatePassword(password)) {
+        setFieldError('password', 'passwordError', 'Password must be at least 6 characters');
+        hasError = true;
+      }
+
+      if (!hasError) {
+        showFormMessage('loginMessage', 'success', 'Login successful! Redirecting to dashboard...');
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 1500);
+      }
+    });
+
+    document.getElementById('signupForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const email = document.getElementById('emailSign').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const password = document.getElementById('passwordSign').value;
+      const errorElements = [
+        document.getElementById('usernameError'),
+        document.getElementById('emailSignError'),
+        document.getElementById('phoneError'),
+        document.getElementById('passwordSignError'),
+      ];
+      clearFormErrors(errorElements);
+      let hasError = false;
+
+      if (!username) {
+        setFieldError('username', 'usernameError', 'Username is required');
+        hasError = true;
+      } else if (!validateUsername(username)) {
+        setFieldError('username', 'usernameError', 'Username must be at least 3 characters');
+        hasError = true;
+      }
+
+      if (!email) {
+        setFieldError('emailSign', 'emailSignError', 'Email is required');
+        hasError = true;
+      } else if (!validateEmail(email)) {
+        setFieldError('emailSign', 'emailSignError', 'Please enter a valid email address');
+        hasError = true;
+      }
+
+      if (!phone) {
+        setFieldError('phone', 'phoneError', 'Phone is required');
+        hasError = true;
+      } else if (!validatePhone(phone)) {
+        setFieldError('phone', 'phoneError', 'Please enter a valid phone number');
+        hasError = true;
+      }
+
+      if (!password) {
+        setFieldError('passwordSign', 'passwordSignError', 'Password is required');
+        hasError = true;
+      } else if (!validatePassword(password)) {
+        setFieldError('passwordSign', 'passwordSignError', 'Password must be at least 6 characters');
+        hasError = true;
+      }
+
+      if (!hasError) {
+        showFormMessage('signupMessage', 'success', 'Account created successfully! Redirecting to dashboard...');
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 1500);
+      }
+    });
+  </script>
 </body>
 </html>

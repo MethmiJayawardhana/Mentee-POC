@@ -245,6 +245,10 @@
       min-height: 18px;
     }
 
+    .save-status.error {
+      color: #dc2626;
+    }
+
     .history-item strong {
       display: block;
       margin-bottom: 8px;
@@ -370,6 +374,11 @@
       }).toUpperCase();
     }
 
+    function countSentences(text) {
+      const matches = text.trim().match(/[.!?]+/g);
+      return matches ? matches.length : 0;
+    }
+
     function truncateWords(text, maxWords = 150) {
       const words = text.trim().split(/\s+/);
       if (words.length <= maxWords) {
@@ -407,6 +416,7 @@
     }
 
     function updateSaveStatus(dateKey) {
+      saveStatus.classList.remove('error');
       if (journalSavedAt[dateKey]) {
         saveStatus.textContent = `Last saved: ${journalSavedAt[dateKey]}`;
       } else {
@@ -457,6 +467,14 @@
       }
 
       const newText = journalEdit.value.trim();
+      const sentenceCount = countSentences(newText);
+      if (sentenceCount < 10) {
+        saveStatus.classList.add('error');
+        saveStatus.textContent = `Please write at least 10 sentences to save. You currently have ${sentenceCount}.`;
+        return;
+      }
+
+      saveStatus.classList.remove('error');
       const previousText = journalEntries[selectedDate] || '';
       const updatedText = newText || 'No journal entry for this date yet.';
 
